@@ -45,3 +45,26 @@
     <span id="scene-label">Scene 1</span>
     <button id="next">Next →</button>
   </div>
+
+  const state = { currentScene:1, yearRange:null, visibleCountries:new Set(), selectedCountry:null };
+
+  Promise.all([
+    d3.csv("scene1.csv", d3.autoType),
+    d3.csv("scene2.csv", d3.autoType),
+    d3.csv("scene3.csv", d3.autoType)
+  ]).then(([sc1,sc2,sc3])=>{
+    state.yearRange = d3.extent(sc1, d=>d.Year);
+    sc2.map(d=>d.Country).forEach(c=>state.visibleCountries.add(c));
+    state.selectedCountry = sc3[0].Country;
+
+    d3.select("#next").on("click",()=>{
+      if(state.currentScene<3) state.currentScene++;
+      drawScene(sc1,sc2,sc3);
+    });
+    d3.select("#prev").on("click",()=>{
+      if(state.currentScene>1) state.currentScene--;
+      drawScene(sc1,sc2,sc3);
+    });
+
+    drawScene(sc1,sc2,sc3);
+  });
