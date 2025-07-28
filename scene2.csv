@@ -1,0 +1,147 @@
+year,country,MedalCount
+1896,France,11
+1900,France,110
+1904,France,1
+1908,France,19
+1912,France,14
+1920,France,41
+1924,France,41
+1928,France,22
+1932,France,20
+1936,France,20
+1948,France,34
+1952,France,19
+1956,France,14
+1960,France,8
+1964,France,22
+1968,France,24
+1972,France,16
+1976,France,10
+1980,France,15
+1984,France,31
+1988,France,18
+1992,France,38
+1994,France,5
+1996,France,37
+1998,France,8
+2000,France,38
+2002,France,11
+2004,France,33
+2006,France,9
+2008,France,43
+2010,France,11
+2012,France,35
+2014,France,15
+2016,France,42
+2018,France,15
+2022,France,14
+2024,France,64
+1896,Germany,13
+1900,Germany,9
+1904,Germany,15
+1908,Germany,13
+1912,Germany,25
+1928,Germany,32
+1932,Germany,22
+1936,Germany,95
+1952,Germany,31
+1992,Germany,108
+1994,Germany,24
+1996,Germany,65
+1998,Germany,29
+2000,Germany,56
+2002,Germany,36
+2004,Germany,49
+2006,Germany,29
+2008,Germany,41
+2010,Germany,30
+2012,Germany,44
+2014,Germany,19
+2016,Germany,42
+2018,Germany,31
+2022,Germany,27
+2024,Germany,33
+1896,Great Britain,7
+1900,Great Britain,35
+1904,Great Britain,2
+1908,Great Britain,146
+1912,Great Britain,41
+1920,Great Britain,42
+1924,Great Britain,38
+1928,Great Britain,21
+1932,Great Britain,16
+1936,Great Britain,17
+1948,Great Britain,25
+1952,Great Britain,12
+1956,Great Britain,24
+1960,Great Britain,20
+1964,Great Britain,19
+1968,Great Britain,13
+1972,Great Britain,18
+1976,Great Britain,14
+1980,Great Britain,22
+1984,Great Britain,38
+1988,Great Britain,24
+1992,Great Britain,20
+1994,Great Britain,2
+1996,Great Britain,15
+1998,Great Britain,1
+2000,Great Britain,28
+2002,Great Britain,2
+2004,Great Britain,30
+2006,Great Britain,1
+2008,Great Britain,51
+2010,Great Britain,1
+2012,Great Britain,65
+2014,Great Britain,5
+2016,Great Britain,67
+2018,Great Britain,5
+2022,Great Britain,2
+2024,Great Britain,65
+1952,USSR,71
+1956,USSR,114
+1960,USSR,124
+1964,USSR,121
+1968,USSR,104
+1972,USSR,115
+1976,USSR,152
+1980,USSR,217
+1984,USSR,25
+1988,USSR,161
+1896,United States,20
+1900,United States,48
+1904,United States,234
+1908,United States,47
+1912,United States,63
+1920,United States,95
+1924,United States,103
+1928,United States,62
+1932,United States,115
+1936,United States,60
+1948,United States,93
+1952,United States,87
+1956,United States,81
+1960,United States,81
+1964,United States,97
+1968,United States,114
+1972,United States,102
+1976,United States,104
+1980,United States,12
+1984,United States,182
+1988,United States,100
+1992,United States,119
+1994,United States,13
+1996,United States,101
+1998,United States,13
+2000,United States,93
+2002,United States,34
+2004,United States,101
+2006,United States,25
+2008,United States,112
+2010,United States,37
+2012,United States,104
+2014,United States,28
+2016,United States,121
+2018,United States,23
+2022,United States,25
+2024,United States,126
