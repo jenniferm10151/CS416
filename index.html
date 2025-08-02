@@ -46,6 +46,7 @@
     <button id="next">Next →</button>
   </div>
 <script>
+  const annotation = d3.annotation;
   const state = { currentScene:1, yearRange:null, visibleCountries:new Set(), selectedCountry:null };
 
   Promise.all([
