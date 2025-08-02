@@ -45,7 +45,7 @@
     <span id="scene-label">Scene 1</span>
     <button id="next">Next →</button>
   </div>
-
+<script>
   const state = { currentScene:1, yearRange:null, visibleCountries:new Set(), selectedCountry:null };
 
   Promise.all([
@@ -121,6 +121,53 @@ function drawScene(sc1, sc2, sc3) {
     }]);
     svg.append("g").call(anno);
   }
+    function drawScene2(data) {
+      const m = {t:40, r:20, b:60, l:60}, W = 800 - m.l - m.r, H = 400 - m.t - m.b;
+
+      const svg = d3.select("#container")
+        .append("svg").attr("width", W+m.l+m.r).attr("height", H+m.t+m.b)
+        .append("g").attr("transform", `translate(${m.l},${m.t})`);
+
+      const filtered = data.filter(d=>state.visibleCountries.has(d.Country));
+      const years = [...new Set(filtered.map(d=>d.Year))].sort((a,b)=>a-b);
+      const countries = [...state.visibleCountries];
+
+      const x = d3.scaleLinear().domain(d3.extent(years)).range([0,W]);
+      const y = d3.scaleLinear().domain([0, d3.max(filtered, d=>d.MedalCount)]).range([H,0]);
+      const color = d3.scaleOrdinal(d3.schemeCategory10).domain(countries);
+
+      countries.forEach(c => {
+        const series = filtered.filter(d=>d.Country===c);
+        svg.append("path")
+          .datum(series)
+          .attr("d", d3.line().x(d=>x(d.Year)).y(d=>y(d.MedalCount)))
+          .attr("stroke", color(c))
+          .attr("fill","none")
+          .attr("stroke-width",2)
+          .attr("opacity",0.8);
+      });
+
+      svg.append("g").attr("transform",`translate(0,${H})`).call(d3.axisBottom(x).tickFormat(d3.format("d")));
+      svg.append("g").call(d3.axisLeft(y));
+
+      // legend toggles
+      const legend = svg.append("g").attr("transform",`translate(${W-100},0)`);
+      countries.forEach((c,i)=>{
+        const g = legend.append("g").attr("transform",`translate(0,${i*20})`);
+        g.append("rect")
+          .attr("width",12).attr("height",12)
+          .attr("fill", color(c))
+          .on("click", ()=>{
+            state.visibleCountries.has(c)
+              ? state.visibleCountries.delete(c)
+              : state.visibleCountries.add(c);
+            drawScene2(data);
+          });
+        g.append("text")
+          .attr("x",18).attr("y",10)
+          .text(c);
+      });
+    }
 </script>
 </body>
 </html>
