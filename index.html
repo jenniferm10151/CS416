@@ -39,7 +39,7 @@
   <script src="https://cdn.jsdelivr.net/npm/d3-svg-annotation@2"></script>
 </head>
 <body>
-  <div id="container"></div>
+  <div id="vis-container"></div>
   <div id="controls">
     <button id="prev">← Prev</button>
     <span id="scene-label">Scene 1</span>
@@ -71,7 +71,7 @@
   });
 
 function drawScene(sc1, sc2, sc3) {
-    d3.select("#container").html("");
+    d3.select("#vis-container").html("");
     d3.select("#scene-label").text(`Scene ${state.currentScene}`);
 
     if(state.currentScene===1) drawScene1(sc1);
@@ -82,7 +82,7 @@ function drawScene(sc1, sc2, sc3) {
   function drawScene1(data) {
     const m = {t:40,r:20,b:80,l:60}, W=800-m.l-m.r, H=400-m.t-m.b;
     
-    const svg = d3.select("#container")
+    const svg = d3.select("#vis-container")
       .append("svg").attr("width",W+m.l+m.r).attr("height",H+m.t+m.b)
       .append("g").attr("transform",`translate(${m.l},${m.t})`);
     
@@ -125,7 +125,7 @@ function drawScene(sc1, sc2, sc3) {
     function drawScene2(data) {
       const m = {t:40, r:20, b:60, l:60}, W = 800 - m.l - m.r, H = 400 - m.t - m.b;
 
-      const svg = d3.select("#container")
+      const svg = d3.select("#vis-container")
         .append("svg").attr("width", W+m.l+m.r).attr("height", H+m.t+m.b)
         .append("g").attr("transform", `translate(${m.l},${m.t})`);
 
@@ -172,7 +172,7 @@ function drawScene(sc1, sc2, sc3) {
   function drawScene3(data) {
       const m = {t:40, r:20, b:60, l:60}, W = 600 - m.l - m.r, H = 400 - m.t - m.b;
 
-      const svg = d3.select("#container")
+      const svg = d3.select("#vis-container")
         .append("svg").attr("width", W+m.l+m.r).attr("height", H+m.t+m.b)
         .append("g").attr("transform", `translate(${m.l},${m.t})`);
 
