@@ -2,37 +2,78 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
-  <title>Olympic Medals Narrative</title>
+  <title>Olympic Medals Over a Century</title>
   <style>
     body { 
-      font-family: sans-serif;
+      font-family: Arial, sans-serif;
       margin: 0;
       padding: 0; 
+      background-color:  #f5f5f5;
     }
     #vis-container {
       padding: 20px;
+      background: white;
+      margin: 20px auto; 
+      max-width: 900px;
+      box-shadow: 0 2px 4px rgba(0,0,0,1);
+      min-height: 500px;
     }
     #controls {
       text-align: center;
-      margin: 10px;
+      margin: 20px auto;
+      max-width: 900px;
     }
-    button, select {
-      margin: 0 5px;
-      padding: 5px 10px;
+    button {
+      margin: 0 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none; 
+      border-radius: 4px; 
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    #scene-label {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 0 20px;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
     }
     .tooltip {
       position: absolute;
-      background: rgba(0,0,0,0.7);
+      background: rgba(0,0,0,0.8);
       color: #fff; 
-      padding: 5px 8px;
+      padding: 8px 12px;
       border-radius: 4px;
       pointer-events: none;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .axis-label {
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .legend {
       font-size: 12px;
+      cursor: pointer;
     }
-    .brush .selection {
-      fill: #aaa;
-      fill-opacity: 0.3;
+    .legend rect {
+      cursor: pointer;
     }
+    .legend.inactive {
+      opacity: 0.3;
+    }
+    .annotation-note-label {
+      font-size: 13px;
+    }
+    .annotation-note-title {
+      font-weight: bold;
+      font-size: 14px;
   </style>
 
   <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -41,87 +82,175 @@
 <body>
   <div id="vis-container"></div>
   <div id="controls">
-    <button id="prev">← Prev</button>
-    <span id="scene-label">Scene 1</span>
+    <button id="prev">← Previous</button>
+    <span id="scene-label">Scene 1 of 3</span>
     <button id="next">Next →</button>
   </div>
 <script>
-  const annotation = d3.annotation;
-  const state = { currentScene:1, yearRange:null, visibleCountries:new Set(), selectedCountry:null };
+  const state = { 
+    currentScene: 1,
+    brushSelection: null,
+    visibleCountries: new Set(['United States', 'USSR', 'Germany', 'Great Britain', 'France']),
+    selectedCountry: 'United States'
+  };
 
   Promise.all([
     d3.csv("scene1.csv", d3.autoType),
     d3.csv("scene2.csv", d3.autoType),
     d3.csv("scene3.csv", d3.autoType)
-  ]).then(([sc1,sc2,sc3])=>{
-    state.yearRange = d3.extent(sc1, d=>d.Year);
-    sc2.map(d=>d.Country).forEach(c=>state.visibleCountries.add(c));
-    state.selectedCountry = sc3[0].Country;
+  ]).then(([scene1Data, scene2Data, scene3Data]) => {
 
-    d3.select("#next").on("click",()=>{
-      if(state.currentScene<3) state.currentScene++;
-      drawScene(sc1,sc2,sc3);
+    function navigation() {
+      d3.select("#prev").attr("disabled", state.currentScene === 1 ? true : null);
+      d3.select("#next").attr("disabled", state.currentScene === 3 ? true : null);
+      d3.select("#scene-label").text(`Scene ${state.currentScene} of 3`);
+    }
+    
+    d3.select("#next").on("click", () => {
+      if(state.currentScene < 3) {
+        state.currentScene++;
+        drawScene();
+      }
     });
-    d3.select("#prev").on("click",()=>{
-      if(state.currentScene>1) state.currentScene--;
-      drawScene(sc1,sc2,sc3);
+
+    d3.select("#prev").on("click", () => {
+      if(state.currentScene > 1) {
+        state.currentScene--;
+        drawScene();
+      }
     });
 
-    drawScene(sc1,sc2,sc3);
-  });
-
-function drawScene(sc1, sc2, sc3) {
-    d3.select("#vis-container").html("");
-    d3.select("#scene-label").text(`Scene ${state.currentScene}`);
-
-    if(state.currentScene===1) drawScene1(sc1);
-    else if(state.currentScene===2) drawScene2(sc2);
-    else drawScene3(sc3);
-  }
+function drawScene() {
+      d3.select("#vis-container").html("");
+      Navigation();
+      
+      if(state.currentScene === 1) drawScene1(scene1Data);
+      else if(state.currentScene === 2) drawScene2(scene2Data);
+      else drawScene3(scene3Data);
+    }
 
   function drawScene1(data) {
-    const m = {t:40,r:20,b:80,l:60}, W=800-m.l-m.r, H=400-m.t-m.b;
-    
-    const svg = d3.select("#vis-container")
-      .append("svg").attr("width",W+m.l+m.r).attr("height",H+m.t+m.b)
-      .append("g").attr("transform",`translate(${m.l},${m.t})`);
-    
-    const x = d3.scaleLinear().domain(state.yearRange).range([0,W]);
-    const y = d3.scaleLinear().domain(d3.extent(data,d=>d.TotalMedals)).range([H,0]);
-    
-    svg.append("path").datum(data)
-      .attr("d", d3.line().x(d=>x(d.Year)).y(d=>y(d.TotalMedals)))
-      .attr("fill","none").attr("stroke","#333").attr("stroke-width",2);
-    
-    svg.append("g").attr("transform",`translate(0,${H})`).call(d3.axisBottom(x).tickFormat(d3.format("d")));
-    svg.append("g").call(d3.axisLeft(y));
-
-    // tooltip
-    const tip = d3.select("body").append("div").attr("class","tooltip").style("opacity",0);
-    svg.selectAll("circle").data(data).join("circle")
-      .attr("cx",d=>x(d.Year)).attr("cy",d=>y(d.TotalMedals)).attr("r",4)
-      .on("mouseover",(e,d)=>{
-        tip.style("opacity",1).html(`${d.Year}: ${d.TotalMedals}`)
-           .style("left",e.pageX+10+"px").style("top",e.pageY-20+"px");
-      })
-      .on("mouseout",()=>tip.style("opacity",0));
-
-    // brush
-    const brush = d3.brushX().extent([[0,H+10],[W,H+40]]).on("end",e=>{
-      if(!e.selection) return;
-      state.yearRange = e.selection.map(x.invert);
-      drawScene1(data);
-    });
-    svg.append("g").attr("class","brush").call(brush);
-
-    // annotation
-    const firstCount = data.find(d=>d.Year===1896).TotalMedals;
-    const anno = annotation().annotations([{
-      note:{title:"🏅 First Games",label:"122 medals in 1896"},
-      x:x(1896), y:y(data.find(d=>d.Year===1896).TotalMedals), dx:10, dy:-30
-    }]);
-    svg.append("g").call(anno);
-  }
+      const container = d3.select("#vis-container");
+      container.append("h2").text("Olympic Medal Growth Over Time");
+      
+      const m = {top: 20, right: 30, bottom: 100, left: 80};
+      const width = 850 - m.left - m.right;
+      const height = 450 - m.top - m.bottom;
+      
+      const svg = container
+        .append("svg")
+        .attr("width", width + m.left + m.right)
+        .attr("height", height + m.top + m.bottom);
+      
+      const g = svg.append("g")
+        .attr("transform", `translate(${m.left},${m.top})`);
+      
+      const x = d3.scaleLinear()
+        .domain(d3.extent(data, d => d.year))
+        .range([0, width]);
+      
+      const y = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.TotalMedals)])
+        .range([height, 0])
+        .nice();
+      
+      const line = d3.line()
+        .x(d => x(d.year))
+        .y(d => y(d.TotalMedals))
+        .curve(d3.curveMonotoneX);
+      
+      g.append("path")
+        .datum(data)
+        .attr("fill", "none")
+        .attr("stroke", "#2E86AB")
+        .attr("stroke-width", 3)
+        .attr("d", line);
+      
+      const tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+      
+      g.selectAll(".dot")
+        .data(data)
+        .enter().append("circle")
+        .attr("class", "dot")
+        .attr("cx", d => x(d.year))
+        .attr("cy", d => y(d.TotalMedals))
+        .attr("r", 5)
+        .attr("fill", "#2E86AB")
+        .on("mouseover", (event, d) => {
+          tooltip.transition().duration(200).style("opacity", .9);
+          tooltip.html(`<strong>${d.year}</strong><br/>Total Medals: ${d.TotalMedals.toLocaleString()}`)
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY - 28) + "px");
+        })
+        .on("mouseout", () => {
+          tooltip.transition().duration(500).style("opacity", 0);
+        });
+      
+      g.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x).tickFormat(d3.format("d")))
+        .append("text")
+        .attr("class", "axis-label")
+        .attr("x", width / 2)
+        .attr("y", 40)
+        .style("text-anchor", "middle")
+        .style("fill", "black")
+        .text("Year");
+      
+      g.append("g")
+        .call(d3.axisLeft(y))
+        .append("text")
+        .attr("class", "axis-label")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -50)
+        .attr("x", -height / 2)
+        .style("text-anchor", "middle")
+        .style("fill", "black")
+        .text("Total Medals Awarded");
+      
+      // annotations
+      const annotations = [
+        {
+          note: {
+            label: "The first modern Olympics awarded only 122 medals",
+            title: "Athens 1896"
+          },
+          x: x(1896),
+          y: y(122),
+          dx: 50,
+          dy: -50
+        },
+        {
+          note: {
+            label: "Post-WWII surge as more nations joined",
+            title: "Growth Period"
+          },
+          x: x(1960),
+          y: y(542),
+          dx: -60,
+          dy: -30
+        },
+        {
+          note: {
+            label: "Over 1,000 medals in Paris 2024!",
+            title: "Modern Era"
+          },
+          x: x(2024),
+          y: y(1044),
+          dx: -80,
+          dy: -40
+        }
+      ];
+      
+      const makeAnnotations = d3.annotation()
+        .annotations(annotations);
+      
+      g.append("g")
+        .attr("class", "annotation-group")
+        .call(makeAnnotations);
+    }
     function drawScene2(data) {
       const m = {t:40, r:20, b:60, l:60}, W = 800 - m.l - m.r, H = 400 - m.t - m.b;
 
