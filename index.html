@@ -280,17 +280,17 @@ function drawScene() {
       const color = d3.scaleOrdinal()
         .domain(countries)
         .range(["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00"]);
+      
+      const line = d3.line()
+        .x(d => x(d.year))
+        .y(d => y(d.MedalCount))
+        .curve(d3.curveMonotoneX);
 
-      countries.forEach(c => {
-        const series = filtered.filter(d=>d.Country===c);
-        svg.append("path")
-          .datum(series)
-          .attr("d", d3.line().x(d=>x(d.Year)).y(d=>y(d.MedalCount)))
-          .attr("stroke", color(c))
-          .attr("fill","none")
-          .attr("stroke-width",2)
-          .attr("opacity",0.8);
-      });
+      const countryData = countries.map(country => ({
+        name: country,
+        values: filteredData.filter(d => d.country === country)
+      }));
+      
 
       svg.append("g").attr("transform",`translate(0,${H})`).call(d3.axisBottom(x).tickFormat(d3.format("d")));
       svg.append("g").call(d3.axisLeft(y));
