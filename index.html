@@ -252,15 +252,21 @@ function drawScene() {
         .call(makeAnnotations);
     }
     function drawScene2(data) {
-      const m = {t:40, r:20, b:60, l:60}, W = 800 - m.l - m.r, H = 400 - m.t - m.b;
+      const container = d3.select("#vis-container");
+      container.append("h2").text("Medal Race: Top Nations Over Time");
 
-      const svg = d3.select("#vis-container")
-        .append("svg").attr("width", W+m.l+m.r).attr("height", H+m.t+m.b)
-        .append("g").attr("transform", `translate(${m.l},${m.t})`);
+      const m = {top: 20, right: 150, bottom: 80, left: 80};
+      const width = 850 - m.left - m.right;
+      const height = 450 - m.top - m.bottom;
+      
+      const svg = = container
+        .append("svg").attr("width", width + m.left + m.right).attr("height", height + m.top +m.bottom);
 
-      const filtered = data.filter(d=>state.visibleCountries.has(d.Country));
-      const years = [...new Set(filtered.map(d=>d.Year))].sort((a,b)=>a-b);
-      const countries = [...state.visibleCountries];
+      const g = svg.append("g")
+        .attr("transform", `translate(${m.left},${m.top})`);
+      
+      const countries = Array.from(state.visibleCountries);
+      const filteredData = data.filter(d => state.visibleCountries.has(d.country));
 
       const x = d3.scaleLinear().domain(d3.extent(years)).range([0,W]);
       const y = d3.scaleLinear().domain([0, d3.max(filtered, d=>d.MedalCount)]).range([H,0]);
