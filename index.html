@@ -268,9 +268,18 @@ function drawScene() {
       const countries = Array.from(state.visibleCountries);
       const filteredData = data.filter(d => state.visibleCountries.has(d.country));
 
-      const x = d3.scaleLinear().domain(d3.extent(years)).range([0,W]);
-      const y = d3.scaleLinear().domain([0, d3.max(filtered, d=>d.MedalCount)]).range([H,0]);
-      const color = d3.scaleOrdinal(d3.schemeCategory10).domain(countries);
+      const x = d3.scaleLinear()
+        .domain(d3.extent(data, d => d.year))
+        .range([0, width]);
+      
+      const y = d3.scaleLinear()
+        .domain([0, d3.max(filteredData, d => d.MedalCount)])
+        .range([height, 0])
+        .nice();
+      
+      const color = d3.scaleOrdinal()
+        .domain(countries)
+        .range(["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00"]);
 
       countries.forEach(c => {
         const series = filtered.filter(d=>d.Country===c);
