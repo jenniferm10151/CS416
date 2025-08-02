@@ -70,7 +70,7 @@
   });
 
 function drawScene(sc1, sc2, sc3) {
-    d3.select("#vis-container").html("");
+    d3.select("#container").html("");
     d3.select("#scene-label").text(`Scene ${state.currentScene}`);
 
     if(state.currentScene===1) drawScene1(sc1);
@@ -80,14 +80,18 @@ function drawScene(sc1, sc2, sc3) {
 
   function drawScene1(data) {
     const m = {t:40,r:20,b:80,l:60}, W=800-m.l-m.r, H=400-m.t-m.b;
-    const svg = d3.select("#vis-container")
+    
+    const svg = d3.select("#container")
       .append("svg").attr("width",W+m.l+m.r).attr("height",H+m.t+m.b)
       .append("g").attr("transform",`translate(${m.l},${m.t})`);
+    
     const x = d3.scaleLinear().domain(state.yearRange).range([0,W]);
     const y = d3.scaleLinear().domain(d3.extent(data,d=>d.TotalMedals)).range([H,0]);
+    
     svg.append("path").datum(data)
       .attr("d", d3.line().x(d=>x(d.Year)).y(d=>y(d.TotalMedals)))
       .attr("fill","none").attr("stroke","#333").attr("stroke-width",2);
+    
     svg.append("g").attr("transform",`translate(0,${H})`).call(d3.axisBottom(x).tickFormat(d3.format("d")));
     svg.append("g").call(d3.axisLeft(y));
 
@@ -110,6 +114,7 @@ function drawScene(sc1, sc2, sc3) {
     svg.append("g").attr("class","brush").call(brush);
 
     // annotation
+    const firstCount = data.find(d=>d.Year===1896).TotalMedals;
     const anno = annotation().annotations([{
       note:{title:"🏅 First Games",label:"122 medals in 1896"},
       x:x(1896), y:y(data.find(d=>d.Year===1896).TotalMedals), dx:10, dy:-30
