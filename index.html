@@ -169,6 +169,52 @@ function drawScene(sc1, sc2, sc3) {
           .text(c);
       });
     }
+  function drawScene3(data) {
+      const m = {t:40, r:20, b:60, l:60}, W = 600 - m.l - m.r, H = 400 - m.t - m.b;
+
+      const svg = d3.select("#container")
+        .append("svg").attr("width", W+m.l+m.r).attr("height", H+m.t+m.b)
+        .append("g").attr("transform", `translate(${m.l},${m.t})`);
+
+      const countries = [...new Set(data.map(d=>d.Country))];
+      let dd = d3.select("#controls").selectAll("select").data([null]);
+      dd.enter().append("select")
+          .on("change", function() {
+            state.selectedCountry = this.value;
+            drawScene3(data);
+          })
+        .merge(dd)
+          .selectAll("option").data(countries).join("option").attr("value", d=>d).attr("selected", d=>d===state.selectedCountry)
+          .text(d=>d);
+
+      const row = data.find(d=>d.Country===state.selectedCountry);
+      const types = ["Gold","Silver","Bronze"],
+            counts = types.map(t=>row[t]);
+
+      const x = d3.scaleBand().domain(types).range([0,W]).padding(0.3);
+      const y = d3.scaleLinear().domain([0,d3.max(counts)]).range([H,0]);
+
+      svg.selectAll("rect").data(types).join("rect")
+        .attr("x", d=>x(d))
+        .attr("y", d=>y(row[d]))
+        .attr("width", x.bandwidth())
+        .attr("height", d=>H - y(row[d]));
+
+      svg.append("g")
+        .attr("transform", `translate(0,${H})`)
+        .call(d3.axisBottom(x));
+      svg.append("g").call(d3.axisLeft(y));
+
+      // annotation
+      const highest = types[counts.indexOf(d3.max(counts))];
+      const anno = d3.annotation().annotations([{
+        note:{ title:`${highest} Leader`, label:`Most ${highest.toLowerCase()}s` },
+        x: x(highest)+x.bandwidth()/2,
+        y: y(row[highest]),
+        dx: 0, dy: -30
+      }]);
+      svg.append("g").call(anno);
+    }
 </script>
 </body>
 </html>
