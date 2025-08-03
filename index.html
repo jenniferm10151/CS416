@@ -226,7 +226,7 @@ function drawScene() {
       const width = 850 - m.left - m.right;
       const height = 450 - m.top - m.bottom;
       
-      const svg = = container
+      const svg = container
         .append("svg").attr("width", width + m.left + m.right).attr("height", height + m.top +m.bottom);
 
       const g = svg.append("g")
@@ -241,7 +241,7 @@ function drawScene() {
         .range([0, width]);
       
       const y = d3.scaleLinear()
-        .domain([0, d3.max(filteredData, d => d.MedalCount)])
+        .domain([0, d3.max(filtered, d => d.MedalCount)])
         .range([height, 0])
         .nice();
       
