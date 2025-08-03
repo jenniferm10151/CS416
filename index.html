@@ -356,139 +356,77 @@ function drawScene() {
       const container = d3.select("#vis-container")
         container.append("h2").text("Medal Distribution by Type");
 
-      const selector = container.append("div")
-        .style("text-align", "center")
-        .style("margin-bottom", "20px");
-      
-      selector.append("label")
-        .text("Select Country: ")
-        .style("font-weight", "bold");
-    
-     const select = selector.append("select")
-        .on("change", function() {
-          state.selectedCountry = this.value;
-          drawScene3(data);
-        });
-      
-      select.selectAll("option")
-        .data(data.map(d => d.country).sort())
-        .enter().append("option")
-        .attr("value", d => d)
-        .attr("selected", d => d === state.selectedCountry ? true : null)
-        .text(d => d);
+      const m = {top:20,right:30,bottom:80,left:80},
+              width = 850 - m.left - m.right,
+              height = 450 - m.top - m.bottom;
 
-     const svg = container
-        .append("svg")
-        .attr("width", width + m.left + m.right)
-        .attr("height", height + m.top + m.bottom);
+      const selDiv = container.append("div").style("text-align","center").style("margin","10px");
+        selDiv.append("label").text("Select Country: ");
+        const select = selDiv.append("select")
+          .on("change",function(){ state.selectedCountry=this.value; drawScene3(data); });
+        select.selectAll("option")
+          .data([...new Set(data.map(d=>d.country))].sort())
+          .enter().append("option")
+            .attr("value",d=>d)
+            .attr("selected",d=>d===state.selectedCountry)
+            .text(d=>d);
 
-     const g = svg.append("g")
-        .attr("transform", `translate(${m.left},${m.top})`);
+      const row = data.find(d=>d.country===state.selectedCountry);
+      const medalData = ["Gold","Silver","Bronze"].map(type=>({ type, count: row[type] }));
 
-     const countryData = data.find(d => d.country === state.selectedCountry);
-      const medalData = [
-        {type: "Gold", count: countryData.Gold},
-        {type: "Silver", count: countryData.Silver},
-        {type: "Bronze", count: countryData.Bronze}
-      ];
+      const svg = container.append("svg")
+            .attr("width", width+m.left+m.right)
+            .attr("height", height+m.top+m.bottom)
+          .append("g")
+            .attr("transform",`translate(${m.left},${m.top})`);
+
+      const x = d3.scaleBand().domain(medalData.map(d=>d.type)).range([0,width]).padding(0.3);
+      const y = d3.scaleLinear().domain([0,d3.max(medalData,d=>d.count)]).nice().range([height,0]);
+      const colors = { Gold:"#FFD700", Silver:"#C0C0C0", Bronze:"#CD7F32" };
+
+      svg.selectAll("rect")
+          .data(medalData)
+          .enter().append("rect")
+            .attr("x", d=>x(d.type))
+            .attr("y", d=>y(d.count))
+            .attr("width", x.bandwidth())
+            .attr("height", d=>height-y(d.count))
+            .attr("fill", d=>colors[d.type]);
+
+        svg.append("g")
+            .attr("transform",`translate(0,${height})`)
+            .call(d3.axisBottom(x))
+          .append("text")
+            .attr("class","axis-label")
+            .attr("x", width/2).attr("y",40)
+            .style("text-anchor","middle").text("Medal Type");
+
+        svg.append("g")
+          .call(d3.axisLeft(y))
+          .append("text")
+            .attr("class","axis-label")
+            .attr("transform","rotate(-90)")
+            .attr("x",-height/2).attr("y",-50)
+            .style("text-anchor","middle").text("Number of Medals");
       
-      const x = d3.scaleBand()
-        .domain(["Gold", "Silver", "Bronze"])
-        .range([0, width])
-        .padding(0.3);
-      
-      const y = d3.scaleLinear()
-        .domain([0, d3.max(medalData, d => d.count)])
-        .range([height, 0])
-        .nice();
-      
-      const colorScale = d3.scaleOrdinal()
-        .domain(["Gold", "Silver", "Bronze"])
-        .range(["#FFD700", "#C0C0C0", "#CD7F32"]);
-      
-      const tooltip = d3.select("body").append("div")
-        .attr("class", "tooltip")
-        .style("opacity", 0);
-      
-      g.selectAll(".bar")
-        .data(medalData)
-        .enter().append("rect")
-        .attr("class", "bar")
-        .attr("x", d => x(d.type))
-        .attr("y", d => y(d.count))
-        .attr("width", x.bandwidth())
-        .attr("height", d => height - y(d.count))
-        .attr("fill", d => colorScale(d.type))
-        .on("mouseover", (event, d) => {
-          tooltip.transition().duration(200).style("opacity", .9);
-          tooltip.html(`<strong>${d.type} Medals</strong><br/>Count: ${d.count}`)
-            .style("left", (event.pageX + 10) + "px")
-            .style("top", (event.pageY - 28) + "px");
-        })
-        .on("mouseout", () => {
-          tooltip.transition().duration(500).style("opacity", 0);
-        });
-      
-      g.selectAll(".text")
-        .data(medalData)
-        .enter().append("text")
-        .attr("x", d => x(d.type) + x.bandwidth()/2)
-        .attr("y", d => y(d.count) - 5)
-        .attr("text-anchor", "middle")
-        .style("font-weight", "bold")
-        .text(d => d.count);
-      
-      g.append("g")
-        .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x))
-        .append("text")
-        .attr("class", "axis-label")
-        .attr("x", width / 2)
-        .attr("y", 40)
-        .style("text-anchor", "middle")
-        .style("fill", "black")
-        .text("Medal Type");
-      
-      g.append("g")
-        .call(d3.axisLeft(y))
-        .append("text")
-        .attr("class", "axis-label")
-        .attr("transform", "rotate(-90)")
-        .attr("y", -50)
-        .attr("x", -height / 2)
-        .style("text-anchor", "middle")
-        .style("fill", "black")
-        .text("Number of Medals");
-      
-      const maxMedal = medalData.reduce((a, b) => a.count > b.count ? a : b);
-      
-      const annotations = [{
-        note: {
-          label: `${state.selectedCountry} has won the most ${maxMedal.type.toLowerCase()} medals`,
-          title: `${maxMedal.type} Leader`
-        },
-        x: x(maxMedal.type) + x.bandwidth()/2,
-        y: y(maxMedal.count),
-        dx: 0,
-        dy: -60
-      }];
-      
-      const makeAnnotations = d3.annotation()
-        .annotations(annotations);
-      
-      g.append("g")
-        .attr("class", "annotation-group")
-        .call(makeAnnotations);
+      const top = medalData.reduce((a,b)=>(a.count>b.count?a:b));
+      const ann3 = d3.annotation().annotations([{
+          note:{ title:`${top.type} Leader`,label:`Most ${top.type.toLowerCase()}s` },
+          x:x(top.type)+x.bandwidth()/2,
+          y:y(top.count),
+          dx:0, dy:-60
+        }]);
+        svg.append("g").call(ann3);
       
       const total = medalData.reduce((sum, d) => sum + d.count, 0);
-      g.append("text")
-        .attr("x", width / 2)
-        .attr("y", -5)
-        .attr("text-anchor", "middle")
-        .style("font-size", "16px")
-        .style("font-weight", "bold")
-        .text(`Total Medals: ${total}`);
-    }
+      svg.append("text")
+          .attr("x", width/2)
+          .attr("y", -5)
+          .attr("text-anchor","middle")
+          .style("font-size","16px")
+          .style("font-weight","bold")
+          .text(`Total Medals: ${total.toLocaleString()}`);
+      }
     drawScene();
   }); 
 </script>
