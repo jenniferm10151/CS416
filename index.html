@@ -122,7 +122,7 @@
 
 function drawScene() {
       d3.select("#vis-container").html("");
-      Navigation();
+      navigation();
       
       if(state.currentScene === 1) drawScene1(scene1Data);
       else if(state.currentScene === 2) drawScene2(scene2Data);
