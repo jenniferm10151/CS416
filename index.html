@@ -371,6 +371,8 @@ function drawScene() {
             .attr("selected",d=>d===state.selectedCountry)
             .text(d=>d);
 
+     select.property("value", state.selectedCountry);
+
       const row = data.find(d=>d.country===state.selectedCountry);
       const medalData = ["Gold","Silver","Bronze"].map(type=>({ type, count: row[type] }));
 
