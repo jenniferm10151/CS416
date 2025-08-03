@@ -421,7 +421,7 @@ function drawScene() {
         {type: "Bronze", count: countryData.Bronze}
       ];
       
-
+      
       const row = data.find(d=>d.Country===state.selectedCountry);
       const types = ["Gold","Silver","Bronze"],
             counts = types.map(t=>row[t]);
@@ -450,6 +450,8 @@ function drawScene() {
       }]);
       svg.append("g").call(anno);
     }
+    drawScene();
+  }); 
 </script>
 </body>
 </html>
