@@ -382,22 +382,45 @@ function drawScene() {
         .call(makeAnnotations);
     }
   function drawScene3(data) {
-      const m = {t:40, r:20, b:60, l:60}, W = 600 - m.l - m.r, H = 400 - m.t - m.b;
+      const container = d3.select("#vis-container")
+        container.append("h2").text("Medal Distribution by Type");
 
-      const svg = d3.select("#vis-container")
-        .append("svg").attr("width", W+m.l+m.r).attr("height", H+m.t+m.b)
-        .append("g").attr("transform", `translate(${m.l},${m.t})`);
+      const selector = container.append("div")
+        .style("text-align", "center")
+        .style("margin-bottom", "20px");
+      
+      selector.append("label")
+        .text("Select Country: ")
+        .style("font-weight", "bold");
+    
+     const select = selector.append("select")
+        .on("change", function() {
+          state.selectedCountry = this.value;
+          drawScene3(data);
+        });
+      
+      select.selectAll("option")
+        .data(data.map(d => d.country).sort())
+        .enter().append("option")
+        .attr("value", d => d)
+        .attr("selected", d => d === state.selectedCountry ? true : null)
+        .text(d => d);
 
-      const countries = [...new Set(data.map(d=>d.Country))];
-      let dd = d3.select("#controls").selectAll("select").data([null]);
-      dd.enter().append("select")
-          .on("change", function() {
-            state.selectedCountry = this.value;
-            drawScene3(data);
-          })
-        .merge(dd)
-          .selectAll("option").data(countries).join("option").attr("value", d=>d).attr("selected", d=>d===state.selectedCountry)
-          .text(d=>d);
+     const svg = container
+        .append("svg")
+        .attr("width", width + m.left + m.right)
+        .attr("height", height + m.top + m.bottom);
+
+     const g = svg.append("g")
+        .attr("transform", `translate(${m.left},${m.top})`);
+
+     const countryData = data.find(d => d.country === state.selectedCountry);
+      const medalData = [
+        {type: "Gold", count: countryData.Gold},
+        {type: "Silver", count: countryData.Silver},
+        {type: "Bronze", count: countryData.Bronze}
+      ];
+      
 
       const row = data.find(d=>d.Country===state.selectedCountry);
       const types = ["Gold","Silver","Bronze"],
