@@ -171,7 +171,7 @@ function drawScene() {
       
       svg.selectAll("circle")
         .data(data)
-        .join("circle"))
+        .join("circle")
         .attr("cx", d => x(d.year))
         .attr("cy", d => y(d.TotalMedals))
         .attr("r", 5)
