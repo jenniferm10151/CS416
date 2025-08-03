@@ -232,8 +232,8 @@ function drawScene() {
       const g = svg.append("g")
         .attr("transform", `translate(${m.left},${m.top})`);
       
-      const filtered = data.filter(d=>state.visibleCountries.has(d.Country));
-      const years = [...new Set(filtered.map(d=>d.Year))].sort((a,b)=>a-b);
+      const filtered = data.filter(d=>state.visibleCountries.has(d.country));
+      const years = [...new Set(filtered.map(d=>d.year))].sort((a,b)=>a-b);
       const countries = [...state.visibleCountries];
 
       const x = d3.scaleLinear()
@@ -255,7 +255,7 @@ function drawScene() {
         .curve(d3.curveMonotoneX);
 
       countries.forEach(cn=>{
-          const seq = filtered.filter(d=>d.Country===cn);
+          const seq = filtered.filter(d=>d.country===cn);
           svg.append("path")
              .datum(seq)
              .attr("fill","none")
