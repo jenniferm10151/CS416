@@ -260,7 +260,7 @@ function drawScene() {
         .filter(d => d.country === country)
         .sort((a,b) => a.year - b.year);            
 
-      svg.append("path")
+      g.append("path")
         .datum(series)
         .attr("fill", "none")
         .attr("stroke", color(country))
