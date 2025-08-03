@@ -236,9 +236,10 @@ function drawScene() {
       const years = [...new Set(filtered.map(d=>d.year))].sort((a,b)=>a-b);
       const countries = [...state.visibleCountries];
 
+      const years = [...new Set(filtered.map(d=>d.year))].sort((a,b)=>a-b);
       const x = d3.scaleLinear()
-        .domain(d3.extent(data, d => d.year))
-        .range([0, width]);
+        .domain(d3.extent(years))
+        .range([0, W]);
       
       const y = d3.scaleLinear()
         .domain([0, d3.max(filtered, d => d.MedalCount)])
@@ -250,19 +251,23 @@ function drawScene() {
         .range(["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00"]);
       
       const line = d3.line()
+        .defined(d => d.MedalCount != null)       
         .x(d => x(d.year))
         .y(d => y(d.MedalCount))
         .curve(d3.curveMonotoneX);
 
-      countries.forEach(cn=>{
-          const seq = filtered.filter(d=>d.country===cn);
-          svg.append("path")
-             .datum(seq)
-             .attr("fill","none")
-             .attr("stroke",color(cn))
-             .attr("stroke-width",2.5)
-             .attr("d",line);
-        });
+      countries.forEach(country => {
+      const series = filtered
+        .filter(d => d.country === country)
+        .sort((a,b) => a.year - b.year);            
+
+      svg.append("path")
+        .datum(series)
+        .attr("fill", "none")
+        .attr("stroke", color(country))
+        .attr("stroke-width", 2.5)
+        .attr("d", line);
+      });
       
       g.append("g")
         .attr("transform", `translate(0,${height})`)
