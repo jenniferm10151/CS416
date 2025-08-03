@@ -238,7 +238,7 @@ function drawScene() {
       const years = [...new Set(filtered.map(d=>d.year))].sort((a,b)=>a-b);
       const x = d3.scaleLinear()
         .domain(d3.extent(years))
-        .range([0, W]);
+        .range([0, width]);
       
       const y = d3.scaleLinear()
         .domain([0, d3.max(filtered, d => d.MedalCount)])
@@ -297,7 +297,7 @@ function drawScene() {
       const legendItems = legend.selectAll(".legend-item")
         .data(countries)
         .enter().append("g")
-        .attr("class", d => `legend-item ${state.visibleCountries.has(d) ? '' : 'inactive'}`)
+        .attr("class", d => `legend-item ${state.visibleCountries.has(d) ? "" : "inactive"}`)
         .attr("transform", (d, i) => `translate(0, ${i * 25})`)
         .style("cursor", "pointer")
         .on("click", (event, d) => {
