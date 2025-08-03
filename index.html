@@ -186,7 +186,7 @@ function drawScene() {
           tooltip.transition().duration(500).style("opacity", 0);
         });
       
-      svg.append("g")
+      g.append("g")
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(x).tickFormat(d3.format("d")))
         .append("text")
@@ -214,7 +214,7 @@ function drawScene() {
           { note:{title:"Rome 1960",label:"542 medals"}, x:x(1960), y:y(542), dx:-60, dy:-30 },
           { note:{title:"Paris 2024",label:"1,044 medals"}, x:x(2024), y:y(1044), dx:-60, dy:0 }
         ]);
-    svg.append("g").call(ann);
+    g.append("g").call(ann);
       }
 
     // scene 2
