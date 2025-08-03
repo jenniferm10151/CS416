@@ -363,7 +363,7 @@ function drawScene() {
       const selDiv = container.append("div").style("text-align","center").style("margin","10px");
         selDiv.append("label").text("Select Country: ");
         const select = selDiv.append("select")
-          .on("change",function(){ state.selectedCountry=this.value; drawScene3(data); });
+          .on("change",function(){ state.selectedCountry=this.value; drawScene(); });
         select.selectAll("option")
           .data([...new Set(data.map(d=>d.country))].sort())
           .enter().append("option")
