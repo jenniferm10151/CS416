@@ -139,10 +139,10 @@ function drawScene() {
       const svg = container
         .append("svg")
         .attr("width", width + m.left + m.right)
-        .attr("height", height + m.top + m.bottom);
+        .attr("height", height + m.top + m.bottom)
+        .append("g")
+        .attr("transformm", `translate(${m.left},${m.top})`);
       
-      const g = svg.append("g")
-        .attr("transform", `translate(${m.left},${m.top})`);
       
       const x = d3.scaleLinear()
         .domain(d3.extent(data, d => d.year))
@@ -158,7 +158,7 @@ function drawScene() {
         .y(d => y(d.TotalMedals))
         .curve(d3.curveMonotoneX);
       
-      g.append("path")
+      svg.append("path")
         .datum(data)
         .attr("fill", "none")
         .attr("stroke", "#2E86AB")
@@ -171,15 +171,14 @@ function drawScene() {
       
       svg.selectAll("circle")
         .data(data)
-        .enter().append("circle")
-        .attr("class", "dot")
+        .join("circle"))
         .attr("cx", d => x(d.year))
         .attr("cy", d => y(d.TotalMedals))
         .attr("r", 5)
         .attr("fill", "#2E86AB")
         .on("mouseover", (event, d) => {
           tooltip.transition().duration(200).style("opacity", .9);
-          tooltip.html(`<strong>${d.year}</strong><br/>Total Medals: ${d.TotalMedals.toLocaleString()}`)
+          tooltip.html(`<strong>${d.year}</strong><br/>${d.TotalMedals} medals`)
             .style("left", (event.pageX + 10) + "px")
             .style("top", (event.pageY - 28) + "px");
         })
