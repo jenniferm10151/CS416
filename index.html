@@ -93,7 +93,6 @@
 <script>
   const state = { 
     currentScene: 1,
-    brushSelection: null,
     visibleCountries: new Set(['United States', 'USSR', 'Germany', 'Great Britain', 'France']),
     selectedCountry: 'United States'
   };
@@ -105,8 +104,8 @@
   ]).then(([scene1Data, scene2Data, scene3Data]) => {
 
     function navigation() {
-      d3.select("#prev").attr("disabled", state.currentScene === 1 ? true : 1);
-      d3.select("#next").attr("disabled", state.currentScene === 3 ? true : 3);
+      d3.select("#prev").property("disabled", state.currentScene === 1);
+      d3.select("#next").property("disabled", state.currentScene === 3);
       d3.select("#scene-label").text(`Scene ${state.currentScene} of 3`);
     }
     
@@ -128,7 +127,7 @@ function drawScene() {
       else if(state.currentScene === 2) drawScene2(scene2Data);
       else drawScene3(scene3Data);
     }
-
+// scene 1
   function drawScene1(data) {
       const container = d3.select("#vis-container");
       container.append("h2").text("Olympic Medal Growth Over Time");
@@ -170,7 +169,7 @@ function drawScene() {
         .attr("class", "tooltip")
         .style("opacity", 0);
       
-      g.selectAll(".dot")
+      svg.selectAll("circle")
         .data(data)
         .enter().append("circle")
         .attr("class", "dot")
@@ -188,7 +187,7 @@ function drawScene() {
           tooltip.transition().duration(500).style("opacity", 0);
         });
       
-      g.append("g")
+      svg.append("g")
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(x).tickFormat(d3.format("d")))
         .append("text")
@@ -199,7 +198,7 @@ function drawScene() {
         .style("fill", "black")
         .text("Year");
       
-      g.append("g")
+      svg.append("g")
         .call(d3.axisLeft(y))
         .append("text")
         .attr("class", "axis-label")
@@ -218,6 +217,8 @@ function drawScene() {
         ]);
     svg.append("g").call(ann);
       }
+
+    // scene 2
     function drawScene2(data) {
       const container = d3.select("#vis-container");
       container.append("h2").text("Medal Race: Top Nations Over Time");
@@ -232,8 +233,9 @@ function drawScene() {
       const g = svg.append("g")
         .attr("transform", `translate(${m.left},${m.top})`);
       
-      const countries = Array.from(state.visibleCountries);
-      const filteredData = data.filter(d => state.visibleCountries.has(d.country));
+      const filtered = data.filter(d=>state.visibleCountries.has(d.Country));
+      const years = [...new Set(filtered.map(d=>d.Year))].sort((a,b)=>a-b);
+      const countries = [...state.visibleCountries];
 
       const x = d3.scaleLinear()
         .domain(d3.extent(data, d => d.year))
@@ -253,18 +255,15 @@ function drawScene() {
         .y(d => y(d.MedalCount))
         .curve(d3.curveMonotoneX);
 
-      const countryData = countries.map(country => ({
-        name: country,
-        values: filteredData.filter(d => d.country === country)
-      }));
-      g.selectAll(".country-line")
-        .data(countryData)
-        .enter().append("path")
-        .attr("class", "country-line")
-        .attr("fill", "none")
-        .attr("stroke", d => color(d.name))
-        .attr("stroke-width", 2.5)
-        .attr("d", d => line(d.values));
+      countries.forEach(cn=>{
+          const seq = filtered.filter(d=>d.Country===cn);
+          svg.append("path")
+             .datum(seq)
+             .attr("fill","none")
+             .attr("stroke",color(cn))
+             .attr("stroke-width",2.5)
+             .attr("d",line);
+        });
       
       g.append("g")
         .attr("transform", `translate(0,${height})`)
@@ -348,6 +347,8 @@ function drawScene() {
         .attr("class", "annotation-group")
         .call(makeAnnotations);
     }
+
+  // scene 3
   function drawScene3(data) {
       const container = d3.select("#vis-container")
         container.append("h2").text("Medal Distribution by Type");
