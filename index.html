@@ -421,34 +421,102 @@ function drawScene() {
         {type: "Bronze", count: countryData.Bronze}
       ];
       
+      const x = d3.scaleBand()
+        .domain(["Gold", "Silver", "Bronze"])
+        .range([0, width])
+        .padding(0.3);
       
-      const row = data.find(d=>d.Country===state.selectedCountry);
-      const types = ["Gold","Silver","Bronze"],
-            counts = types.map(t=>row[t]);
-
-      const x = d3.scaleBand().domain(types).range([0,W]).padding(0.3);
-      const y = d3.scaleLinear().domain([0,d3.max(counts)]).range([H,0]);
-
-      svg.selectAll("rect").data(types).join("rect")
-        .attr("x", d=>x(d))
-        .attr("y", d=>y(row[d]))
+      const y = d3.scaleLinear()
+        .domain([0, d3.max(medalData, d => d.count)])
+        .range([height, 0])
+        .nice();
+      
+      const colorScale = d3.scaleOrdinal()
+        .domain(["Gold", "Silver", "Bronze"])
+        .range(["#FFD700", "#C0C0C0", "#CD7F32"]);
+      
+      const tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+      
+      g.selectAll(".bar")
+        .data(medalData)
+        .enter().append("rect")
+        .attr("class", "bar")
+        .attr("x", d => x(d.type))
+        .attr("y", d => y(d.count))
         .attr("width", x.bandwidth())
-        .attr("height", d=>H - y(row[d]));
-
-      svg.append("g")
-        .attr("transform", `translate(0,${H})`)
-        .call(d3.axisBottom(x));
-      svg.append("g").call(d3.axisLeft(y));
-
-      // annotation
-      const highest = types[counts.indexOf(d3.max(counts))];
-      const anno = d3.annotation().annotations([{
-        note:{ title:`${highest} Leader`, label:`Most ${highest.toLowerCase()}s` },
-        x: x(highest)+x.bandwidth()/2,
-        y: y(row[highest]),
-        dx: 0, dy: -30
-      }]);
-      svg.append("g").call(anno);
+        .attr("height", d => height - y(d.count))
+        .attr("fill", d => colorScale(d.type))
+        .on("mouseover", (event, d) => {
+          tooltip.transition().duration(200).style("opacity", .9);
+          tooltip.html(`<strong>${d.type} Medals</strong><br/>Count: ${d.count}`)
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY - 28) + "px");
+        })
+        .on("mouseout", () => {
+          tooltip.transition().duration(500).style("opacity", 0);
+        });
+      
+      g.selectAll(".text")
+        .data(medalData)
+        .enter().append("text")
+        .attr("x", d => x(d.type) + x.bandwidth()/2)
+        .attr("y", d => y(d.count) - 5)
+        .attr("text-anchor", "middle")
+        .style("font-weight", "bold")
+        .text(d => d.count);
+      
+      g.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x))
+        .append("text")
+        .attr("class", "axis-label")
+        .attr("x", width / 2)
+        .attr("y", 40)
+        .style("text-anchor", "middle")
+        .style("fill", "black")
+        .text("Medal Type");
+      
+      g.append("g")
+        .call(d3.axisLeft(y))
+        .append("text")
+        .attr("class", "axis-label")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -50)
+        .attr("x", -height / 2)
+        .style("text-anchor", "middle")
+        .style("fill", "black")
+        .text("Number of Medals");
+      
+      const maxMedal = medalData.reduce((a, b) => a.count > b.count ? a : b);
+      
+      const annotations = [{
+        note: {
+          label: `${state.selectedCountry} has won the most ${maxMedal.type.toLowerCase()} medals`,
+          title: `${maxMedal.type} Leader`
+        },
+        x: x(maxMedal.type) + x.bandwidth()/2,
+        y: y(maxMedal.count),
+        dx: 0,
+        dy: -60
+      }];
+      
+      const makeAnnotations = d3.annotation()
+        .annotations(annotations);
+      
+      g.append("g")
+        .attr("class", "annotation-group")
+        .call(makeAnnotations);
+      
+      const total = medalData.reduce((sum, d) => sum + d.count, 0);
+      g.append("text")
+        .attr("x", width / 2)
+        .attr("y", -5)
+        .attr("text-anchor", "middle")
+        .style("font-size", "16px")
+        .style("font-weight", "bold")
+        .text(`Total Medals: ${total}`);
     }
     drawScene();
   }); 
