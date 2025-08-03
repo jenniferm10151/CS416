@@ -197,7 +197,7 @@ function drawScene() {
         .style("fill", "black")
         .text("Year");
       
-      svg.append("g")
+      g.append("g")
         .call(d3.axisLeft(y))
         .append("text")
         .attr("class", "axis-label")
