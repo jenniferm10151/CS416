@@ -233,7 +233,6 @@ function drawScene() {
         .attr("transform", `translate(${m.left},${m.top})`);
       
       const filtered = data.filter(d=>state.visibleCountries.has(d.country));
-      const years = [...new Set(filtered.map(d=>d.year))].sort((a,b)=>a-b);
       const countries = [...state.visibleCountries];
 
       const years = [...new Set(filtered.map(d=>d.year))].sort((a,b)=>a-b);
