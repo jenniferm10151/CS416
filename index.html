@@ -290,28 +290,96 @@ function drawScene() {
         name: country,
         values: filteredData.filter(d => d.country === country)
       }));
+      g.selectAll(".country-line")
+        .data(countryData)
+        .enter().append("path")
+        .attr("class", "country-line")
+        .attr("fill", "none")
+        .attr("stroke", d => color(d.name))
+        .attr("stroke-width", 2.5)
+        .attr("d", d => line(d.values));
       
-
-      svg.append("g").attr("transform",`translate(0,${H})`).call(d3.axisBottom(x).tickFormat(d3.format("d")));
-      svg.append("g").call(d3.axisLeft(y));
-
-      // legend toggles
-      const legend = svg.append("g").attr("transform",`translate(${W-100},0)`);
-      countries.forEach((c,i)=>{
-        const g = legend.append("g").attr("transform",`translate(0,${i*20})`);
-        g.append("rect")
-          .attr("width",12).attr("height",12)
-          .attr("fill", color(c))
-          .on("click", ()=>{
-            state.visibleCountries.has(c)
-              ? state.visibleCountries.delete(c)
-              : state.visibleCountries.add(c);
-            drawScene2(data);
-          });
-        g.append("text")
-          .attr("x",18).attr("y",10)
-          .text(c);
-      });
+      g.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x).tickFormat(d3.format("d")))
+        .append("text")
+        .attr("class", "axis-label")
+        .attr("x", width / 2)
+        .attr("y", 40)
+        .style("text-anchor", "middle")
+        .style("fill", "black")
+        .text("Year");
+      
+      g.append("g")
+        .call(d3.axisLeft(y))
+        .append("text")
+        .attr("class", "axis-label")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -50)
+        .attr("x", -height / 2)
+        .style("text-anchor", "middle")
+        .style("fill", "black")
+        .text("Medals Won");
+      
+      const legend = g.append("g")
+        .attr("class", "legend")
+        .attr("transform", `translate(${width + 10}, 20)`);
+      
+      const legendItems = legend.selectAll(".legend-item")
+        .data(countries)
+        .enter().append("g")
+        .attr("class", d => `legend-item ${state.visibleCountries.has(d) ? '' : 'inactive'}`)
+        .attr("transform", (d, i) => `translate(0, ${i * 25})`)
+        .style("cursor", "pointer")
+        .on("click", (event, d) => {
+          if (state.visibleCountries.has(d)) {
+            state.visibleCountries.delete(d);
+          } else {
+            state.visibleCountries.add(d);
+          }
+          drawScene2(data);
+        });
+      
+      legendItems.append("rect")
+        .attr("width", 18)
+        .attr("height", 18)
+        .attr("fill", d => color(d));
+      
+      legendItems.append("text")
+        .attr("x", 24)
+        .attr("y", 9)
+        .attr("dy", "0.35em")
+        .text(d => d);
+      
+      const annotations = [
+        {
+          note: {
+            label: "Dominated early Olympics and post-WWII era",
+            title: "US Leadership"
+          },
+          x: x(1952),
+          y: y(87),
+          dx: 30,
+          dy: -40
+        },
+        {
+          note: {
+            label: "USSR enters and challenges US dominance",
+            title: "Cold War Competition"
+          },
+          x: x(1976),
+          y: y(152),
+          dx: -50,
+          dy: -30
+        }
+      ];
+      
+      const makeAnnotations = d3.annotation()
+        .annotations(annotations);
+      
+      g.append("g")
+        .attr("class", "annotation-group")
+        .call(makeAnnotations);
     }
   function drawScene3(data) {
       const m = {t:40, r:20, b:60, l:60}, W = 600 - m.l - m.r, H = 400 - m.t - m.b;
