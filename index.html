@@ -412,13 +412,15 @@ function drawScene() {
             .style("text-anchor","middle").text("Number of Medals");
       
       const top = medalData.reduce((a,b)=>(a.count>b.count?a:b));
-      const ann3 = d3.annotation().annotations([{
-          note:{ title:`${top.type} Leader`,label:`Most ${top.type.toLowerCase()}s` },
+      const makeAnnotations = d3.annotation()
+        .type(d3.annotationsLabel)
+        .annotations([{
+          note:{ title:`${top.type} Leader`,label:`Most ${top.type.toLowerCase()} medals` },
           x:x(top.type)+x.bandwidth()/2,
           y:y(top.count),
-          dx:0, dy:-60
+          dx:0, dy:-40
         }]);
-        svg.append("g").call(ann3);
+        svg.append("g").attr("class", "annotation-group").call(makeAnnotations);
       
       const total = medalData.reduce((sum, d) => sum + d.count, 0);
       svg.append("text")
